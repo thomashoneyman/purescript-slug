@@ -117,4 +117,5 @@ toString (Slug s) = s
 truncate :: Int -> Slug -> Maybe Slug
 truncate n (Slug s)
   | n < 1 = Nothing
+  | n >= String.length s = Just (Slug s)
   | otherwise = generate $ String.take n s
