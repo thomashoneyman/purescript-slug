@@ -13,22 +13,37 @@ jobs:
 
       - restore_cache:
           keys:
+            - v0.0-npm-cache-{{ .Branch }}-{{ checksum "package.json" }}
+            - v0.0-npm-cache-{{ .Branch }}
+            - v0.0-npm-cache
+
+      - restore_cache:
+          keys:
             - v0.0-purs-cache-{{ .Branch }}-{{ checksum "bower.json" }}
             - v0.0-purs-cache-{{ .Branch }}
             - v0.0-purs-cache
 
       - run:
-          name: Install Bower dependencies
-          command: bower i
+          name: Install NPM & Bower dependencies
+          command: npm install
 
       - run:
           name: Verify the PureScript builds successfully
-          command: pulp test
+          command: npm run build
+
+      - run:
+          name: Verify the all tests pass
+          command: npm run test
 
       - save_cache:
           key: v0.0-purs-cache-{{ .Branch }}-{{ checksum "bower.json" }}
           paths:
-            - ~/work/web/purs/bower_components
+            - ~/work/bower_components
+
+      - save_cache:
+          key: v0.0-npm-cache-{{ .Branch }}-{{ checksum "package.json" }}
+          paths:
+            - ~/work/node_modules
 
 workflows:
   version: 2
