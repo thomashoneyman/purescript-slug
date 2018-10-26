@@ -1,10 +1,16 @@
 {
   "name": "purescript-slug",
+  "license": "MIT",
+  "authors": [
+    "Thomas R. Honeyman <admin@thomashoneyman.com>"
+  ],
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
-    "output"
+    "output",
+    "test",
+    "tests"
   ],
   "dependencies": {
     "purescript-prelude": "^4.1.0",
