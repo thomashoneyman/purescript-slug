@@ -8,7 +8,6 @@ import Data.Char.Unicode (isAlphaNum, isUpper)
 import Data.Maybe (Maybe(..), fromJust, isJust, isNothing)
 import Data.String as String
 import Data.String.CodeUnits (toCharArray)
-import Data.String.Gen (genUnicodeString)
 import Data.String.Pattern (Pattern(..))
 import Effect (Effect)
 import Partial.Unsafe (unsafePartial)
@@ -106,7 +105,7 @@ newtype Slug' = Slug' Slug
 -- Only generate valid slugs to test properties
 instance arbitrarySlug' :: Arbitrary Slug' where
   arbitrary = do
-    let slug = ((map Slug' <<< Slug.generate) <$> genUnicodeString) `suchThat` isJust
+    let slug = ((map Slug' <<< Slug.generate) <$> arbitrary) `suchThat` isJust
     slug <#> \x -> unsafePartial (fromJust x)
 
 -- In order to test parsing fails appropriately
@@ -114,7 +113,7 @@ newtype BadInput = BadInput String
 
 -- Only generate *invalid* string slugs to test properties
 instance arbitraryBadInput :: Arbitrary BadInput where
-  arbitrary = BadInput <$> genUnicodeString `suchThat` (isNothing <<< Slug.generate)
+  arbitrary = BadInput <$> arbitrary `suchThat` (isNothing <<< Slug.generate)
 
 -- In order to test truncation fails appropriately
 newtype NonPositiveInt = NonPositiveInt Int

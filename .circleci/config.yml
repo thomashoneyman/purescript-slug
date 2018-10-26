@@ -1,0 +1,37 @@
+version: 2
+
+defaults: &defaults
+  working_directory: ~/work
+  docker:
+    - image: circleci/node:10.8-browsers
+
+jobs:
+  build_test:
+    <<: *defaults
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v0.0-purs-cache-{{ .Branch }}-{{ checksum "bower.json" }}
+            - v0.0-purs-cache-{{ .Branch }}
+            - v0.0-purs-cache
+
+      - run:
+          name: Install Bower dependencies
+          command: bower i
+
+      - run:
+          name: Verify the PureScript builds successfully
+          command: pulp test
+
+      - save_cache:
+          key: v0.0-purs-cache-{{ .Branch }}-{{ checksum "bower.json" }}
+          paths:
+            - ~/work/web/purs/bower_components
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build_test

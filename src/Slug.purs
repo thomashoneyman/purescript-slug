@@ -10,7 +10,7 @@ import Prelude
 
 import Data.Argonaut (class DecodeJson, class EncodeJson, decodeJson, encodeJson)
 import Data.Array as Array
-import Data.Char.Unicode as Char
+import Data.Char.Unicode (isAlphaNum, isLatin1)
 import Data.Either (note)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
@@ -72,7 +72,7 @@ generate s = do
     -- Replace non-alphanumeric characters with spaces to be stripped later.
     onlyAlphaNum =
       fromCharArray
-      <<< map (\x -> if Char.isAlphaNum x then x else ' ')
+      <<< map (\x -> if isAlphaNum x && isLatin1 x then x else ' ')
       <<< toCharArray
 
     -- Split on whitespace
