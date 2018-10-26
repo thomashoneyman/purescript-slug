@@ -4,6 +4,10 @@
   "authors": [
     "Thomas R. Honeyman <admin@thomashoneyman.com>"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thomashoneyman/purescript-slug.git"
+  },
   "ignore": [
     "**/.*",
     "node_modules",
