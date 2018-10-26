@@ -22,15 +22,15 @@ This package provides a `Slug` type and related type classes & helper functions 
 - there are never two dashes in a row
 - every character is lower cased
 
-Create a slug with `Slug.create`:
+Create a slug with `Slug.generate`:
 
 ```purescript
-create :: String -> Maybe Slug
+generate :: String -> Maybe Slug
 
-> show $ Slug.create "This is an article!"
+> show $ Slug.generate "This is an article!"
 > Just (Slug "this-is-an-article")
 
-> show $ Slug.create "¬¬¬{}¬¬¬"
+> show $ Slug.generate "¬¬¬{}¬¬¬"
 > Nothing
 ```
 
@@ -59,4 +59,4 @@ toString :: Slug -> String
 
 Read the [contribution guidelines](https://github.com/thomashoneyman/purescript-slug/blob/master/.github/contributing.md) to get started and see helpful related resources.
 
-Inspired by the Haskell [slug](https://github.com/mrkkrp/slug) library by [@mrkkrp](https://github.com/mrkkrp).
+Inspired by the Haskell [slug](https://github.com/mrkkrp/slug) library by [@mrkkrp](https://github.com/mrkkrp). Some naming conventions mirror [elm-slug](https://github.com/hecrj/elm-slug).

@@ -8,10 +8,14 @@
   ],
   "dependencies": {
     "purescript-prelude": "^4.1.0",
-    "purescript-console": "^4.1.0",
-    "purescript-effect": "^2.0.0"
+    "purescript-maybe": "^4.0.0",
+    "purescript-strings": "^4.0.0",
+    "purescript-unicode": "^4.0.1",
+    "purescript-generics-rep": "^6.1.0",
+    "purescript-argonaut": "^4.0.1"
   },
   "devDependencies": {
-    "purescript-psci-support": "^4.0.0"
+    "purescript-psci-support": "^4.0.0",
+    "purescript-quickcheck": "^5.0.0"
   }
 }
