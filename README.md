@@ -1,5 +1,6 @@
 # purescript-slug
 
+[![CircleCI](https://circleci.com/gh/thomashoneyman/purescript-slug/tree/master.svg?style=shield)](https://circleci.com/gh/thomashoneyman/purescript-slug/tree/master)
 [![Latest release](http://img.shields.io/github/release/thomashoneyman/purescript-slug.svg)](https://github.com/thomashoneyman/purescript-slug/releases)
 [![Pursuit](http://pursuit.purescript.org/packages/purescript-slug/badge)](http://pursuit.purescript.org/packages/purescript-slug/)
 [![Maintainer: thomashoneyman](https://img.shields.io/badge/maintainer-thomashoneyman-lightgrey.svg)](http://github.com/thomashoneyman)
