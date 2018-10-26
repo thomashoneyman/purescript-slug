@@ -22,6 +22,8 @@ This package provides a `Slug` type and related type classes & helper functions 
 - there are never two dashes in a row
 - every character is lower cased
 
+> **Note**: This library currently only supports characters within the Latin-1 set.
+
 Create a slug with `Slug.generate`:
 
 ```purescript
