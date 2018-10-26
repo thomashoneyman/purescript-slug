@@ -76,7 +76,7 @@ generate s = do
       <<< toCharArray
 
     -- Split on whitespace
-    words = String.split (Pattern " ")
+    words = Array.filter (not String.null) <<< String.split (Pattern " ")
 
 -- | Parse a valid slug (as a string) into a `Slug`. This will fail if the
 -- | string is not a valid slug and does not provide the same behavior as
