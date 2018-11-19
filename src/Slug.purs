@@ -8,7 +8,8 @@ module Slug
 
 import Prelude
 
-import Data.Argonaut (class DecodeJson, class EncodeJson, decodeJson, encodeJson)
+import Data.Argonaut.Encode (class EncodeJson, encodeJson)
+import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Array as Array
 import Data.Char.Unicode (isAlphaNum, isLatin1)
 import Data.Either (note)
