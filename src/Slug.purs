@@ -8,8 +8,8 @@ module Slug
 
 import Prelude
 
+import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError(..), decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
-import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Array as Array
 import Data.Char.Unicode (isAlphaNum, isLatin1)
 import Data.Either (note)
@@ -43,7 +43,7 @@ instance encodeJsonSlug :: EncodeJson Slug where
   encodeJson (Slug s) = encodeJson s
 
 instance decodeJsonSlug :: DecodeJson Slug where
-  decodeJson = note "Failed to decode slug" <<< parse <=< decodeJson
+  decodeJson = note (TypeMismatch "Slug") <<< parse <=< decodeJson
 
 -- | Create a `Slug` from a string. This will transform the input string
 -- | to be a valid slug (if it is possible to do so) by separating words

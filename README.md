@@ -9,11 +9,11 @@ Type-safe slugs for PureScript.
 
 ## Installation
 
-```shell
-bower install purescript-slug
+```sh
+spago install slug
 ```
 
-# Use
+## Use
 
 This package provides a `Slug` type and related type classes & helper functions to help you construct and use type-safe slugs. When you have a `Slug`, you can be sure:
 
@@ -27,7 +27,7 @@ This package provides a `Slug` type and related type classes & helper functions 
 
 Create a slug with `Slug.generate`:
 
-```purescript
+```purs
 generate :: String -> Maybe Slug
 
 > show $ Slug.generate "This is an article!"
@@ -39,7 +39,7 @@ generate :: String -> Maybe Slug
 
 Parse a string that is (supposedly) already a slug with `Slug.parse`:
 
-```purescript
+```purs
 parse :: String -> Either SlugError Slug
 
 > Slug.parse "this-is-an-article"
@@ -51,7 +51,7 @@ parse :: String -> Either SlugError Slug
 
 Recover a string from a valid `Slug` with `Slug.toString`:
 
-```purescript
+```purs
 toString :: Slug -> String
 
 > Slug.toString (mySlug :: Slug)

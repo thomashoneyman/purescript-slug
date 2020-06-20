@@ -22,7 +22,7 @@
   "homepage": "https://github.com/thomashoneyman/purescript-slug#readme",
   "devDependencies": {
     "bower": "^1.8.8",
-    "pulp": "^12.4.2",
-    "purescript": "^0.12.5"
+    "pulp": "^15.0.0",
+    "purescript": "^0.13.8"
   }
 }
