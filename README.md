@@ -1,4 +1,4 @@
-# purescript-slug
+# Slug
 
 [![CI](https://github.com/thomashoneyman/purescript-slug/workflows/CI/badge.svg?branch=master)](https://github.com/thomashoneyman/purescript-slug/actions?query=workflow%3ACI+branch%3Amaster)
 [![Latest release](http://img.shields.io/github/release/thomashoneyman/purescript-slug.svg)](https://github.com/thomashoneyman/purescript-slug/releases)
