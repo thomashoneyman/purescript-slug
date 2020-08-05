@@ -1,6 +1,6 @@
 # Slug
 
-[![CI](https://github.com/thomashoneyman/purescript-slug/workflows/CI/badge.svg?branch=master)](https://github.com/thomashoneyman/purescript-slug/actions?query=workflow%3ACI+branch%3Amaster)
+[![CI](https://github.com/thomashoneyman/purescript-slug/workflows/CI/badge.svg?branch=main)](https://github.com/thomashoneyman/purescript-slug/actions?query=workflow%3ACI+branch%3Amain)
 [![Latest release](http://img.shields.io/github/release/thomashoneyman/purescript-slug.svg)](https://github.com/thomashoneyman/purescript-slug/releases)
 [![Latest package set](https://img.shields.io/endpoint.svg?url=https://package-sets-badge-0lf69kxs4fbd.runkit.sh/slug)](https://github.com/purescript/package-sets)
 [![Maintainer: thomashoneyman](https://img.shields.io/badge/maintainer-thomashoneyman-lightgrey.svg)](http://github.com/thomashoneyman)
@@ -60,6 +60,6 @@ toString :: Slug -> String
 
 ## Contributing
 
-Read the [contribution guidelines](https://github.com/thomashoneyman/purescript-slug/blob/master/.github/contributing.md) to get started and see helpful related resources.
+Read the [contribution guidelines](https://github.com/thomashoneyman/purescript-slug/blob/main/.github/contributing.md) to get started and see helpful related resources.
 
 Inspired by the Haskell [slug](https://github.com/mrkkrp/slug) library by [@mrkkrp](https://github.com/mrkkrp). Some naming conventions mirror [elm-slug](https://github.com/hecrj/elm-slug).
