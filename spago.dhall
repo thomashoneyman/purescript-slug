@@ -12,5 +12,5 @@
   , "unicode"
   ]
 , packages = ./packages.dhall
-, sources = [ "test/**/*.purs" ]
+, sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }
