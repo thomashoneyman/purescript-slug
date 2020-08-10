@@ -7,6 +7,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - uses: thomashoneyman/setup-purescript@main
+
+      - name: Cache installed dependencies
+        uses: actions/cache@v2
+        with:
+          path: .spago
+          key: ${{ runner.os }}-spago-${{ hashFiles('**/*.dhall') }}
+          restore-keys: ${{ runner.os }}-spago-
+
+      - name: Cache compiled dependencies
+        uses: actions/cache@v2
+        with:
+          path: output
+          key: ${{ runner.os }}-output-${{ hashFiles('**/*.dhall') }}
+
       - run: spago build
+
       - run: spago test
