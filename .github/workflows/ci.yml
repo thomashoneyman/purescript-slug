@@ -8,20 +8,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: thomashoneyman/setup-purescript@main
-
-      - name: Spago cache
+      - name: Setup PureScript toolchain
+        uses: thomashoneyman/setup-purescript@main
+        
+      - name: Cache PureScript dependencies
         uses: actions/cache@v2
         with:
-          path: .spago
           key: ${{ runner.os }}-spago-${{ hashFiles('**/*.dhall') }}
-          restore-keys: ${{ runner.os }}-spago-
-
-      - name: Pre-compiled cache
-        uses: actions/cache@v2
-        with:
-          path: output
-          key: ${{ runner.os }}-output-${{ hashFiles('**/*.dhall') }}
+          path: |
+            .spago
+            output
 
       - run: spago build
 
