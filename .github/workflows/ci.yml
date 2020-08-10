@@ -10,18 +10,13 @@ jobs:
 
       - uses: thomashoneyman/setup-purescript@main
 
-      - name: Cache installed dependencies
-        uses: actions/cache@v2
+      - uses: actions/cache@v2
         with:
-          path: .spago
-          key: ${{ runner.os }}-spago-${{ hashFiles('**/*.dhall') }}
-          restore-keys: ${{ runner.os }}-spago-
-
-      - name: Cache compiled dependencies
-        uses: actions/cache@v2
-        with:
-          path: output
-          key: ${{ runner.os }}-output-${{ hashFiles('**/*.dhall') }}
+          key: ${{ runner.os }}-purs-deps-${{ hashFiles('**/*.dhall') }}
+          restore-keys: ${{ runner.os }}-purs-deps-
+          path: |
+            .spago
+            output
 
       - run: spago build
 
