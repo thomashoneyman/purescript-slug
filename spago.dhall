@@ -1,7 +1,6 @@
 { name = "slug"
 , dependencies =
   [ "argonaut-codecs"
-  , "debug"
   , "generics-rep"
   , "maybe"
   , "prelude"
