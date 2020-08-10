@@ -63,21 +63,22 @@ instance decodeJsonSlug :: DecodeJson Slug where
 generate :: String -> Maybe Slug
 generate s = do
   let arr = words $ String.toLower $ onlyAlphaNum $ stripApostrophes s
-  if Array.null arr
-    then Nothing
-    else Just $ Slug $ String.joinWith "-" arr
+  if Array.null arr then
+    Nothing
+  else
+    Just $ Slug $ String.joinWith "-" arr
   where
-    -- Strip apostrophes to avoid unnecessary word breaks
-    stripApostrophes = String.replaceAll (Pattern "'") (Replacement "")
+  -- Strip apostrophes to avoid unnecessary word breaks
+  stripApostrophes = String.replaceAll (Pattern "'") (Replacement "")
 
-    -- Replace non-alphanumeric characters with spaces to be stripped later.
-    onlyAlphaNum =
-      fromCharArray
+  -- Replace non-alphanumeric characters with spaces to be stripped later.
+  onlyAlphaNum =
+    fromCharArray
       <<< map (\x -> if isAlphaNum x && isLatin1 x then x else ' ')
       <<< toCharArray
 
-    -- Split on whitespace
-    words = Array.filter (not String.null) <<< String.split (Pattern " ")
+  -- Split on whitespace
+  words = Array.filter (not String.null) <<< String.split (Pattern " ")
 
 -- | Parse a valid slug (as a string) into a `Slug`. This will fail if the
 -- | string is not a valid slug and does not provide the same behavior as
@@ -93,9 +94,9 @@ generate s = do
 parse :: String -> Maybe Slug
 parse str = generate str >>= check
   where
-    check slug@(Slug s)
-      | s == str = Just slug
-      | otherwise = Nothing
+  check slug@(Slug s)
+    | s == str = Just slug
+    | otherwise = Nothing
 
 -- | Unwrap a `Slug` into the string contained within, without performing
 -- | any transformations.
