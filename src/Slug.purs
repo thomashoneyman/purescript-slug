@@ -11,13 +11,13 @@ import Prelude
 import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError(..), decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Array as Array
-import Data.Char.Unicode (isAlphaNum, isLatin1)
+import Data.CodePoint.Unicode (isAlphaNum, isLatin1)
 import Data.Either (note)
 import Data.Generic.Rep (class Generic)
-import Data.Generic.Rep.Show (genericShow)
+import Data.Show.Generic (genericShow)
 import Data.Maybe (Maybe(..))
 import Data.String as String
-import Data.String.CodeUnits (fromCharArray, toCharArray)
+import Data.String.CodePoints (fromCodePointArray, toCodePointArray, codePointFromChar)
 import Data.String.Pattern (Pattern(..), Replacement(..))
 
 -- | A `Slug` represents a string value which is guaranteed to have the
@@ -73,9 +73,9 @@ generate s = do
 
   -- Replace non-alphanumeric characters with spaces to be stripped later.
   onlyAlphaNum =
-    fromCharArray
-      <<< map (\x -> if isAlphaNum x && isLatin1 x then x else ' ')
-      <<< toCharArray
+    fromCodePointArray
+      <<< map (\x -> if isAlphaNum x && isLatin1 x then x else codePointFromChar ' ')
+      <<< toCodePointArray
 
   -- Split on whitespace
   words = Array.filter (not String.null) <<< String.split (Pattern " ")

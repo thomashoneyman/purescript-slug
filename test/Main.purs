@@ -4,10 +4,10 @@ import Prelude
 
 import Data.Array (all, any)
 import Data.Array.Partial as AP
-import Data.Char.Unicode (isAlphaNum, isUpper)
+import Data.CodePoint.Unicode (isAlphaNum, isUpper)
 import Data.Maybe (Maybe(..), fromJust, isJust, isNothing)
 import Data.String as String
-import Data.String.CodeUnits (toCharArray)
+import Data.String.CodePoints (toCodePointArray, codePointFromChar)
 import Data.String.Pattern (Pattern(..))
 import Effect (Effect)
 import Partial.Unsafe (unsafePartial)
@@ -29,18 +29,18 @@ main = runTest do
 
     test "Contains only dashes and alphanumeric characters" do
       quickCheck' 500 $ \(Slug' slug) -> do
-        let f x = isAlphaNum x || x == '-'
-        all f (toCharArray (Slug.toString slug)) `assertEquals` true
+        let f x = isAlphaNum x || x == codePointFromChar '-'
+        all f (toCodePointArray (Slug.toString slug)) `assertEquals` true
 
     test "Does not begin with a dash" do
       quickCheck' 500 $ \(Slug' slug) -> do
-        let first = unsafePartial (AP.head (toCharArray (Slug.toString slug)))
-        first `assertNotEquals` '-'
+        let first = unsafePartial (AP.head (toCodePointArray (Slug.toString slug)))
+        first `assertNotEquals` codePointFromChar '-'
 
     test "Does not end with a dash" do
       quickCheck' 500 $ \(Slug' slug) -> do
-        let last = unsafePartial (AP.last (toCharArray (Slug.toString slug)))
-        last `assertNotEquals` '-'
+        let last = unsafePartial (AP.last (toCodePointArray (Slug.toString slug)))
+        last `assertNotEquals` codePointFromChar '-'
 
     test "Does not contain empty words between dashes" do
       quickCheck' 500 $ \(Slug' slug) -> do
@@ -49,7 +49,7 @@ main = runTest do
 
     test "Does not contain any uppercase characters" do
       quickCheck' 500 $ \(Slug' slug) -> do
-        let arr = toCharArray $ Slug.toString slug
+        let arr = toCodePointArray $ Slug.toString slug
         any isUpper arr `assertEquals` false
 
   suite "Semigroup Instance" do
