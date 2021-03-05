@@ -10,77 +10,78 @@ import Data.String as String
 import Data.String.CodePoints (toCodePointArray, codePointFromChar)
 import Data.String.Pattern (Pattern(..))
 import Effect (Effect)
+import Effect.Aff (launchAff_)
 import Partial.Unsafe (unsafePartial)
 import Slug (Slug)
 import Slug as Slug
-import Test.QuickCheck (assertEquals, assertNotEquals)
-import Test.QuickCheck.Arbitrary (class Arbitrary, arbitrary)
+import Test.QuickCheck (class Arbitrary, arbitrary, assertEquals, assertNotEquals)
 import Test.QuickCheck.Gen (suchThat)
-import Test.Unit (suite, test)
-import Test.Unit.Main (runTest)
-import Test.Unit.QuickCheck (quickCheck')
+import Test.Spec (describe, it)
+import Test.Spec.QuickCheck (quickCheck')
+import Test.Spec.Reporter (consoleReporter)
+import Test.Spec.Runner (runSpec)
 
 main :: Effect Unit
-main = runTest do
-  suite "Slug Properties" do
-    test "Cannot be empty" do
+main = launchAff_ $ runSpec [consoleReporter] do
+  describe "Slug Properties" do
+    it "Cannot be empty" do
       quickCheck' 500 $ \(Slug' slug) ->
         Slug.toString slug `assertNotEquals` ""
 
-    test "Contains only dashes and alphanumeric characters" do
+    it "Contains only dashes and alphanumeric characters" do
       quickCheck' 500 $ \(Slug' slug) -> do
         let f x = isAlphaNum x || x == codePointFromChar '-'
         all f (toCodePointArray (Slug.toString slug)) `assertEquals` true
 
-    test "Does not begin with a dash" do
+    it "Does not begin with a dash" do
       quickCheck' 500 $ \(Slug' slug) -> do
         let first = unsafePartial (AP.head (toCodePointArray (Slug.toString slug)))
         first `assertNotEquals` codePointFromChar '-'
 
-    test "Does not end with a dash" do
+    it "Does not end with a dash" do
       quickCheck' 500 $ \(Slug' slug) -> do
         let last = unsafePartial (AP.last (toCodePointArray (Slug.toString slug)))
         last `assertNotEquals` codePointFromChar '-'
 
-    test "Does not contain empty words between dashes" do
+    it "Does not contain empty words between dashes" do
       quickCheck' 500 $ \(Slug' slug) -> do
         let arr = String.split (Pattern "-") (Slug.toString slug)
         any String.null arr `assertEquals` false
 
-    test "Does not contain any uppercase characters" do
+    it "Does not contain any uppercase characters" do
       quickCheck' 500 $ \(Slug' slug) -> do
         let arr = toCodePointArray $ Slug.toString slug
         any isUpper arr `assertEquals` false
 
-  suite "Semigroup Instance" do
-    test "Append always creates a valid slug" do
+  describe "Semigroup Instance" do
+    it "Append always creates a valid slug" do
       quickCheck' 100 $ \(Slug' x) (Slug' y) -> do
         let slug = Slug.toString (x <> y)
             slug' = Slug.toString <$> Slug.parse slug
         slug' `assertEquals` pure slug
 
-  suite "Generate Slugs" do
-    test "Generated slugs are idempotent" do
+  describe "Generate Slugs" do
+    it "Generated slugs are idempotent" do
       quickCheck' 500 $ \x -> do
         let f = Slug.generate
             g = Slug.generate >=> Slug.generate <<< Slug.toString
         f x `assertEquals` g x
 
-  suite "Parse Slugs" do
-    test "Slug parses successfully on valid input" do
+  describe "Parse Slugs" do
+    it "Slug parses successfully on valid input" do
       quickCheck' 500 $ \(Slug' slug) -> do
         Slug.parse (Slug.toString slug) `assertEquals` pure slug
 
-    test "Slug fails to parse bad input" do
+    it "Slug fails to parse bad input" do
       quickCheck' 500 $ \(BadInput str) -> do
         Slug.parse str `assertEquals` Nothing
 
-  suite "Truncate Slugs" do
-    test "Truncated slugs fail when given a non-positive length" do
+  describe "Truncate Slugs" do
+    it "Truncated slugs fail when given a non-positive length" do
       quickCheck' 500 $ \(NonPositiveInt n) (Slug' slug) -> do
         Slug.truncate n slug `assertEquals` Nothing
 
-    test "Truncated slugs succeed with (n) or (n - 1) when given a positive length" do
+    it "Truncated slugs succeed with (n) or (n - 1) when given a positive length" do
       quickCheck' 500 $ \(PositiveInt n) (Slug' slug) -> do
         let startLen = String.length (Slug.toString slug)
         case Slug.truncate n slug of

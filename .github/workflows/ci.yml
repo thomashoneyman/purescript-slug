@@ -9,9 +9,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - uses: thomashoneyman/setup-purescript@main
-        with:
-          purescript: "0.14.0-rc5"
-        
+
       - name: Cache PureScript dependencies
         uses: actions/cache@v2
         with:
@@ -22,4 +20,4 @@ jobs:
 
       - run: spago build
 
-      - run: spago test --no-install
+      - run: spago -x test/test.dhall test
