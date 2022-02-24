@@ -1,6 +1,8 @@
 { name = "slug"
 , dependencies =
   [ "argonaut-codecs"
+  , "arrays"
+  , "either"
   , "maybe"
   , "prelude"
   , "strings"
