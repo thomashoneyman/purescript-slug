@@ -30,17 +30,17 @@ import Data.String.Pattern (Pattern(..), Replacement(..))
 -- | Example: `Slug "this-is-an-article-slug"`
 newtype Slug = Slug String
 
-derive instance Eq Slug
-derive instance Ord Slug
-derive newtype instance Semigroup Slug
+derive instance eqSlug :: Eq Slug
+derive instance ordSlug :: Ord Slug
+derive newtype instance semigroupSlug :: Semigroup Slug
 
-instance Show Slug where
+instance showSlug :: Show Slug where
   show (Slug str) = "(Slug " <> str <> ")"
 
-instance EncodeJson Slug where
+instance encodeJsonSlug :: EncodeJson Slug where
   encodeJson (Slug s) = encodeJson s
 
-instance DecodeJson Slug where
+instance decodeJsonSlug :: DecodeJson Slug where
   decodeJson = note (TypeMismatch "Slug") <<< parse <=< decodeJson
 
 -- | Create a `Slug` from a string. This will transform the input string
