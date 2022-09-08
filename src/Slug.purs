@@ -30,9 +30,9 @@ import Data.String.Pattern (Pattern(..), Replacement(..))
 -- | Example: `Slug "this-is-an-article-slug"`
 newtype Slug = Slug String
 
-derive Eq Slug
-derive Ord Slug
-derive Semigroup Slug
+derive newtype instance Eq Slug
+derive newtype instance Ord Slug
+derive newtype instance Semigroup Slug
 
 instance Show Slug where
   show (Slug str) = "(Slug " <> str <> ")"
