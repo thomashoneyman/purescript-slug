@@ -1,26 +1,39 @@
 name: CI
 
-on: 
-  push: 
-    branches: main
+on:
+  push:
+    branches: [main]
   pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
 
-      - uses: thomashoneyman/setup-purescript@main
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v4
+
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@v2
 
       - name: Cache PureScript dependencies
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-spago-${{ hashFiles('**/*.dhall') }}
+          key: ${{ runner.os }}-spago-${{ hashFiles('**/spago.yaml') }}
           path: |
             .spago
             output
 
-      - run: spago build
+      - name: Load Nix environment
+        run: nix develop
 
-      - run: spago -x test/test.dhall test
+      - name: Build source
+        run: spago build
+
+      - name: Run tests
+        run: spago test
+
+      - name: Check formatting
+        run: purs-tidy check src test
