@@ -3,18 +3,21 @@ module Test.Main where
 import Prelude
 
 import Data.Array (all, any)
+import Data.Array.NonEmpty as NonEmptyArray
 import Data.Array.Partial as AP
 import Data.CodePoint.Unicode (isAlphaNum, isUpper)
 import Data.Maybe (Maybe(..), fromJust, isJust, isNothing)
 import Data.String as String
 import Data.String.CodePoints (toCodePointArray, codePointFromChar)
+import Data.String.NonEmpty (toNonEmptyCodePointArray)
 import Data.String.Pattern (Pattern(..))
+import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Aff (launchAff_)
 import Partial.Unsafe (unsafePartial)
-import Slug (Slug)
+import Slug (Slug, Options)
 import Slug as Slug
-import Test.QuickCheck (class Arbitrary, arbitrary, assertEquals, assertNotEquals)
+import Test.QuickCheck (class Arbitrary, Result(..), arbitrary, assertEquals, assertNotEquals)
 import Test.QuickCheck.Gen (suchThat)
 import Test.Spec (describe, it)
 import Test.Spec.QuickCheck (quickCheck')
@@ -22,7 +25,7 @@ import Test.Spec.Reporter (consoleReporter)
 import Test.Spec.Runner (runSpec)
 
 main :: Effect Unit
-main = launchAff_ $ runSpec [consoleReporter] do
+main = launchAff_ $ runSpec [ consoleReporter ] do
   describe "Slug Properties" do
     it "Cannot be empty" do
       quickCheck' 500 $ \(Slug' slug) ->
@@ -56,15 +59,17 @@ main = launchAff_ $ runSpec [consoleReporter] do
   describe "Semigroup Instance" do
     it "Append always creates a valid slug" do
       quickCheck' 100 $ \(Slug' x) (Slug' y) -> do
-        let slug = Slug.toString (x <> y)
-            slug' = Slug.toString <$> Slug.parse slug
+        let
+          slug = Slug.toString (x <> y)
+          slug' = Slug.toString <$> Slug.parse slug
         slug' `assertEquals` pure slug
 
   describe "Generate Slugs" do
     it "Generated slugs are idempotent" do
       quickCheck' 500 $ \x -> do
-        let f = Slug.generate
-            g = Slug.generate >=> Slug.generate <<< Slug.toString
+        let
+          f = Slug.generate
+          g = Slug.generate >=> Slug.generate <<< Slug.toString
         f x `assertEquals` g x
 
   describe "Parse Slugs" do
@@ -96,6 +101,22 @@ main = launchAff_ $ runSpec [consoleReporter] do
               -- if there is a trailing dash)
               _ -> (x == n || x == n - 1) `assertEquals` true
 
+  describe "Generate with Options" do
+    it "Generated slugs are idempotent" do
+      quickCheck' 500 $ \(Tuple str (Options' opts)) -> do
+        let
+          f = Slug.generateWithOptions opts
+          g = Slug.generateWithOptions opts >=> Slug.generateWithOptions opts <<< Slug.toString
+        f str `assertEquals` g str
+
+  describe "Parse Slugs with Options" do
+    it "Slug parses successfully on valid input" do
+      quickCheck' 500 $ \(Tuple str (Options' opts)) -> do
+        case Slug.generateWithOptions opts str of
+          Just slug -> do
+            Slug.parseWithOptions opts (Slug.toString slug) `assertEquals` pure slug
+          Nothing -> Success
+
 ----------
 -- Arbitrary instances
 
@@ -103,11 +124,21 @@ main = launchAff_ $ runSpec [consoleReporter] do
 -- the main `Slug` source
 newtype Slug' = Slug' Slug
 
+newtype Options' = Options' Options
+
 -- Only generate valid slugs to test properties
 instance arbitrarySlug' :: Arbitrary Slug' where
   arbitrary = do
     let slug = ((map Slug' <<< Slug.generate) <$> arbitrary) `suchThat` isJust
     slug <#> \x -> unsafePartial (fromJust x)
+
+-- Only generate valid slugs to test properties
+instance arbitraryOptions' :: Arbitrary Options' where
+  arbitrary = do
+    replaceSpaceWith <- arbitrary
+    filter <- eq <<< NonEmptyArray.head <<< toNonEmptyCodePointArray <$> arbitrary
+    lowerCase <- arbitrary
+    pure $ Options' { replaceSpaceWith, filter, lowerCase }
 
 -- In order to test parsing fails appropriately
 newtype BadInput = BadInput String
