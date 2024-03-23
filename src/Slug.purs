@@ -1,7 +1,11 @@
 module Slug
   ( Slug
+  , Options
+  , defaultOptions
   , generate
+  , generateWithOptions
   , parse
+  , parseWithOptions
   , toString
   , truncate
   ) where
@@ -14,9 +18,10 @@ import Data.Array as Array
 import Data.CodePoint.Unicode (isAlphaNum, isLatin1)
 import Data.Either (note)
 import Data.Maybe (Maybe(..))
+import Data.String (CodePoint)
 import Data.String as String
 import Data.String.CodePoints (fromCodePointArray, toCodePointArray, codePointFromChar)
-import Data.String.Pattern (Pattern(..), Replacement(..))
+import Data.String.Pattern (Pattern(..))
 
 -- | A `Slug` represents a string value which is guaranteed to have the
 -- | following qualities:
@@ -43,6 +48,45 @@ instance EncodeJson Slug where
 instance DecodeJson Slug where
   decodeJson = note (TypeMismatch "Slug") <<< parse <=< decodeJson
 
+type Options =
+  { replaceSpaceWith :: String
+  , filter :: CodePoint -> Boolean
+  , lowerCase :: Boolean
+  }
+
+defaultOptions :: Options
+defaultOptions =
+  { replaceSpaceWith: "-"
+  , filter: isAlphaNum && isLatin1 && (_ /= codePointFromChar '\'')
+  , lowerCase: true
+  }
+
+generateWithOptions :: Options -> String -> Maybe Slug
+generateWithOptions options s = do
+  let
+    caseTransform = if options.lowerCase then String.toLower else identity
+    arr = words $ caseTransform $ filterChars s
+  if Array.null arr then
+    Nothing
+  else
+    Just $ Slug $ String.joinWith options.replaceSpaceWith arr
+  where
+  -- Replace filtered-out characters with spaces to be stripped later.
+  filterChars =
+    fromCodePointArray
+      <<< map (\c -> if options.filter c then c else codePointFromChar ' ')
+      <<< toCodePointArray
+
+  -- Split on whitespace
+  words = Array.filter (not String.null) <<< String.split (Pattern " ")
+
+parseWithOptions :: Options -> String -> Maybe Slug
+parseWithOptions options str = generateWithOptions options str >>= check
+  where
+  check slug@(Slug s)
+    | s == str = Just slug
+    | otherwise = Nothing
+
 -- | Create a `Slug` from a string. This will transform the input string
 -- | to be a valid slug (if it is possible to do so) by separating words
 -- | with `-` dashes, ensuring the string does not begin or end with a
@@ -59,24 +103,8 @@ instance DecodeJson Slug where
 -- | > Nothing
 -- | ```
 generate :: String -> Maybe Slug
-generate s = do
-  let arr = words $ String.toLower $ onlyAlphaNum $ stripApostrophes s
-  if Array.null arr then
-    Nothing
-  else
-    Just $ Slug $ String.joinWith "-" arr
-  where
-  -- Strip apostrophes to avoid unnecessary word breaks
-  stripApostrophes = String.replaceAll (Pattern "'") (Replacement "")
-
-  -- Replace non-alphanumeric characters with spaces to be stripped later.
-  onlyAlphaNum =
-    fromCodePointArray
-      <<< map (\x -> if isAlphaNum x && isLatin1 x then x else codePointFromChar ' ')
-      <<< toCodePointArray
-
-  -- Split on whitespace
-  words = Array.filter (not String.null) <<< String.split (Pattern " ")
+generate =
+  generateWithOptions defaultOptions
 
 -- | Parse a valid slug (as a string) into a `Slug`. This will fail if the
 -- | string is not a valid slug and does not provide the same behavior as
@@ -90,11 +118,7 @@ generate s = do
 -- | > Nothing
 -- | ```
 parse :: String -> Maybe Slug
-parse str = generate str >>= check
-  where
-  check slug@(Slug s)
-    | s == str = Just slug
-    | otherwise = Nothing
+parse = parseWithOptions defaultOptions
 
 -- | Unwrap a `Slug` into the string contained within, without performing
 -- | any transformations.

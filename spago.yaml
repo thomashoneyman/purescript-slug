@@ -1,0 +1,21 @@
+package:
+  name: slug
+  dependencies:
+  - argonaut-codecs
+  - arrays
+  - either
+  - maybe
+  - prelude
+  - strings
+  - unicode
+  test:
+    main: Test.Main
+    dependencies:
+      - quickcheck
+      - spec
+      - spec-quickcheck
+
+workspace:
+  extra_packages: {}
+  packageSet:
+    registry: 50.5.0
