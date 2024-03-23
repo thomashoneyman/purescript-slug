@@ -2,14 +2,13 @@ module Test.Main where
 
 import Prelude
 
-import Data.Array (all, any)
-import Data.Array.NonEmpty as NonEmptyArray
+import Data.Array (all, any, elem)
 import Data.Array.Partial as AP
-import Data.CodePoint.Unicode (isAlphaNum, isUpper)
+import Data.CodePoint.Unicode (isAlphaNum, isLatin1, isUpper)
 import Data.Maybe (Maybe(..), fromJust, isJust, isNothing)
+import Data.Maybe as Maybe
 import Data.String as String
 import Data.String.CodePoints (toCodePointArray, codePointFromChar)
-import Data.String.NonEmpty (toNonEmptyCodePointArray)
 import Data.String.Pattern (Pattern(..))
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
@@ -19,6 +18,7 @@ import Slug (Slug, Options)
 import Slug as Slug
 import Test.QuickCheck (class Arbitrary, Result(..), arbitrary, assertEquals, assertNotEquals)
 import Test.QuickCheck.Gen (suchThat)
+import Test.Slugify as Slugify
 import Test.Spec (describe, it)
 import Test.Spec.QuickCheck (quickCheck')
 import Test.Spec.Reporter (consoleReporter)
@@ -117,6 +117,20 @@ main = launchAff_ $ runSpec [ consoleReporter ] do
             Slug.parseWithOptions opts (Slug.toString slug) `assertEquals` pure slug
           Nothing -> Success
 
+    it "Can parse slugify-generated slugs" do
+      let
+        slugifyOpts = Slug.defaultOptions { lowerCase = false, filter = isLatin1 }
+        parse = Slug.parseWithOptions slugifyOpts
+      quickCheck' 500 $ \str -> do
+        let
+          slugifySlug = Slugify.slugify str
+          maybeSlug = Slug.toString <$> parse slugifySlug
+          -- NOTE: `slugify` can return an empty string, so to test
+          -- compatibility, we default to empty string in case of
+          -- parse failure
+          slug = Maybe.fromMaybe "" maybeSlug
+        slug `assertEquals` slugifySlug
+
 ----------
 -- Arbitrary instances
 
@@ -136,7 +150,7 @@ instance arbitrarySlug' :: Arbitrary Slug' where
 instance arbitraryOptions' :: Arbitrary Options' where
   arbitrary = do
     replaceSpaceWith <- arbitrary
-    filter <- eq <<< NonEmptyArray.head <<< toNonEmptyCodePointArray <$> arbitrary
+    filter <- flip elem <<< toCodePointArray <$> arbitrary
     lowerCase <- arbitrary
     pure $ Options' { replaceSpaceWith, filter, lowerCase }
 

@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "slugify": "^1.6.6"
+  }
+}

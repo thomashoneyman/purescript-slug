@@ -29,6 +29,9 @@ jobs:
       - name: Load Nix environment
         run: nix develop
 
+      - name: Load NPM deps
+        run: nix develop --command npm install
+
       - name: Build source
         run: spago build
 
