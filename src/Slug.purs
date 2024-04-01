@@ -50,7 +50,7 @@ derive newtype instance Ord Slug
 derive newtype instance Semigroup Slug
 
 instance Show Slug where
-  show (Slug str) = "(Slug " <> str <> ")"
+  show (Slug str) = "(Slug " <> show str <> ")"
 
 instance EncodeJson Slug where
   encodeJson (Slug s) = encodeJson s
