@@ -3,20 +3,23 @@ module Test.Main where
 import Prelude
 
 import Data.Array (all, any)
+import Data.Array.NonEmpty (cons')
 import Data.Array.Partial as AP
-import Data.CodePoint.Unicode (isAlphaNum, isUpper)
+import Data.CodePoint.Unicode (isAlphaNum, isLatin1, isUpper)
 import Data.Maybe (Maybe(..), fromJust, isJust, isNothing)
 import Data.String as String
+import Data.String.CodePoints as CodePoints
 import Data.String.CodePoints (toCodePointArray, codePointFromChar)
 import Data.String.Pattern (Pattern(..))
 import Effect (Effect)
 import Effect.Aff (launchAff_)
 import Partial.Unsafe (unsafePartial)
-import Slug (Slug)
+import Slug (Slug, Options)
 import Slug as Slug
 import Test.QuickCheck (class Arbitrary, arbitrary, assertEquals, assertNotEquals)
-import Test.QuickCheck.Gen (suchThat)
+import Test.QuickCheck.Gen (elements, suchThat)
 import Test.Spec (describe, it)
+import Test.Spec.Assertions (shouldEqual)
 import Test.Spec.QuickCheck (quickCheck')
 import Test.Spec.Reporter (consoleReporter)
 import Test.Spec.Runner (runSpec)
@@ -76,6 +79,23 @@ main = launchAff_ $ runSpec [consoleReporter] do
       quickCheck' 500 $ \(BadInput str) -> do
         Slug.parse str `assertEquals` Nothing
 
+  describe "Generate Slugs with Options" do
+    it "Generated slugs are idempotent" do
+      quickCheck' 500 \(Options' options) x -> do
+        let generate = Slug.generateWithOptions options
+            f = generate
+            g = generate >=> generate <<< Slug.toString
+        f x `assertEquals` g x
+
+  describe "Parse Slugs with Options" do
+    it "Slug parses successfully on valid input" do
+      quickCheck' 500 \(SlugWithOptions { slug, options }) -> do
+        Slug.parseWithOptions options (Slug.toString slug) `assertEquals` pure slug
+
+    it "Slug fails to parse bad input" do
+      quickCheck' 500 \(BadInputWithOptions { input, options }) -> do
+        Slug.parseWithOptions options input `assertEquals` Nothing
+
   describe "Truncate Slugs" do
     it "Truncated slugs fail when given a non-positive length" do
       quickCheck' 500 $ \(NonPositiveInt n) (Slug' slug) -> do
@@ -96,12 +116,38 @@ main = launchAff_ $ runSpec [consoleReporter] do
               -- if there is a trailing dash)
               _ -> (x == n || x == n - 1) `assertEquals` true
 
+  describe "Slug Unit Tests" do
+    describe "Slug.generate" do
+      it "Fails on input with all-special characters (as documented)" do
+        Slug.generate "¬¬¬{}¬¬¬" `shouldEqual` Nothing
+
+      it "Succeeds on article title example (as documented)" do
+        map Slug.toString (Slug.generate "My article title!") `shouldEqual` Just "my-article-title"
+
+      it "Trims surrounding spaces" do
+        map Slug.toString (Slug.generate "   a   ") `shouldEqual` Just "a"
+
+      it "Trims surrounding special characters" do
+        map Slug.toString (Slug.generate "   -'a'-   ") `shouldEqual` Just "a"
+
+      it "Doesn't create a word break on apostrophe" do
+        map Slug.toString (Slug.generate "This library's great") `shouldEqual` Just "this-librarys-great"
+
+    describe "Slug.generateWithOptions" do
+      let
+        slugifyOptions = Slug.defaultOptions { keepIf = isLatin1, lowerCase = false, stripApostrophes = false }
+        slugify = Slug.generateWithOptions slugifyOptions
+      it "Succeeds on article title example (as documented)" do
+        map Slug.toString (slugify "This is my article's title!") `shouldEqual` Just "This-is-my-article's-title!"
+
+
 ----------
 -- Arbitrary instances
 
 -- In order to avoid unnecessary dependencies and instances in
 -- the main `Slug` source
 newtype Slug' = Slug' Slug
+newtype Options' = Options' Options
 
 -- Only generate valid slugs to test properties
 instance arbitrarySlug' :: Arbitrary Slug' where
@@ -109,12 +155,43 @@ instance arbitrarySlug' :: Arbitrary Slug' where
     let slug = ((map Slug' <<< Slug.generate) <$> arbitrary) `suchThat` isJust
     slug <#> \x -> unsafePartial (fromJust x)
 
+
+instance arbitraryOptions' :: Arbitrary Options' where
+  arbitrary = do
+    replacement <- elements (cons' "-" ["_", " ", ""])
+    keepIf <- arbitrary <#> \f -> f <<< CodePoints.singleton
+    lowerCase <- arbitrary
+    stripApostrophes <- arbitrary
+    pure (Options' { replacement, keepIf, lowerCase, stripApostrophes })
+
+-- For testing arbitrary slugs with options, we need to pair the generated slug
+-- with the options used to generate it
+newtype SlugWithOptions = SlugWithOptions { slug :: Slug, options :: Options }
+
+-- Only generate valid slugs with options to test properties
+instance arbitrarySlugWithOptions :: Arbitrary SlugWithOptions where
+  arbitrary = do
+    Options' options <- arbitrary
+    let generate = Slug.generateWithOptions options
+    slug <- (generate <$> arbitrary) `suchThat` isJust
+    pure (SlugWithOptions { slug: unsafePartial (fromJust slug), options })
+
 -- In order to test parsing fails appropriately
 newtype BadInput = BadInput String
 
 -- Only generate *invalid* string slugs to test properties
 instance arbitraryBadInput :: Arbitrary BadInput where
   arbitrary = BadInput <$> arbitrary `suchThat` (isNothing <<< Slug.generate)
+
+-- In order to test parsing with options fails appropriately
+newtype BadInputWithOptions = BadInputWithOptions { input :: String, options :: Options }
+
+-- Only generate *invalid* string slugs to test properties
+instance arbitraryBadInputWithOptions :: Arbitrary BadInputWithOptions where
+  arbitrary = do
+    Options' options <- arbitrary
+    input <- arbitrary `suchThat` (isNothing <<< Slug.generateWithOptions options)
+    pure (BadInputWithOptions { input, options })
 
 -- In order to test truncation fails appropriately
 newtype NonPositiveInt = NonPositiveInt Int
