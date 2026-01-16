@@ -25,7 +25,7 @@ import Test.Spec.Reporter (consoleReporter)
 import Test.Spec.Runner (runSpec)
 
 main :: Effect Unit
-main = launchAff_ $ runSpec [consoleReporter] do
+main = launchAff_ $ runSpec [ consoleReporter ] do
   describe "Slug Properties" do
     it "Cannot be empty" do
       quickCheck' 500 $ \(Slug' slug) ->
@@ -59,15 +59,17 @@ main = launchAff_ $ runSpec [consoleReporter] do
   describe "Semigroup Instance" do
     it "Append always creates a valid slug" do
       quickCheck' 100 $ \(Slug' x) (Slug' y) -> do
-        let slug = Slug.toString (x <> y)
-            slug' = Slug.toString <$> Slug.parse slug
+        let
+          slug = Slug.toString (x <> y)
+          slug' = Slug.toString <$> Slug.parse slug
         slug' `assertEquals` pure slug
 
   describe "Generate Slugs" do
     it "Generated slugs are idempotent" do
       quickCheck' 500 $ \x -> do
-        let f = Slug.generate
-            g = Slug.generate >=> Slug.generate <<< Slug.toString
+        let
+          f = Slug.generate
+          g = Slug.generate >=> Slug.generate <<< Slug.toString
         f x `assertEquals` g x
 
   describe "Parse Slugs" do
@@ -82,9 +84,10 @@ main = launchAff_ $ runSpec [consoleReporter] do
   describe "Generate Slugs with Options" do
     it "Generated slugs are idempotent" do
       quickCheck' 500 \(Options' options) x -> do
-        let generate = Slug.generateWithOptions options
-            f = generate
-            g = generate >=> generate <<< Slug.toString
+        let
+          generate = Slug.generateWithOptions options
+          f = generate
+          g = generate >=> generate <<< Slug.toString
         f x `assertEquals` g x
 
   describe "Parse Slugs with Options" do
@@ -140,7 +143,6 @@ main = launchAff_ $ runSpec [consoleReporter] do
       it "Succeeds on article title example (as documented)" do
         map Slug.toString (slugify "This is my article's title!") `shouldEqual` Just "This-is-my-article's-title!"
 
-
 ----------
 -- Arbitrary instances
 
@@ -155,10 +157,9 @@ instance arbitrarySlug' :: Arbitrary Slug' where
     let slug = ((map Slug' <<< Slug.generate) <$> arbitrary) `suchThat` isJust
     slug <#> \x -> unsafePartial (fromJust x)
 
-
 instance arbitraryOptions' :: Arbitrary Options' where
   arbitrary = do
-    replacement <- elements (cons' "-" ["_", " ", ""])
+    replacement <- elements (cons' "-" [ "_", " ", "" ])
     keepIf <- arbitrary <#> \f -> f <<< CodePoints.singleton
     lowerCase <- arbitrary
     stripApostrophes <- arbitrary
