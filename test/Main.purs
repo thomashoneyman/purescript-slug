@@ -12,7 +12,6 @@ import Data.String.CodePoints as CodePoints
 import Data.String.CodePoints (toCodePointArray, codePointFromChar)
 import Data.String.Pattern (Pattern(..))
 import Effect (Effect)
-import Effect.Aff (launchAff_)
 import Partial.Unsafe (unsafePartial)
 import Slug (Slug, Options)
 import Slug as Slug
@@ -22,10 +21,10 @@ import Test.Spec (describe, it)
 import Test.Spec.Assertions (shouldEqual)
 import Test.Spec.QuickCheck (quickCheck')
 import Test.Spec.Reporter (consoleReporter)
-import Test.Spec.Runner (runSpec)
+import Test.Spec.Runner.Node (runSpecAndExitProcess)
 
 main :: Effect Unit
-main = launchAff_ $ runSpec [ consoleReporter ] do
+main = runSpecAndExitProcess [ consoleReporter ] do
   describe "Slug Properties" do
     it "Cannot be empty" do
       quickCheck' 500 $ \(Slug' slug) ->

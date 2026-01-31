@@ -48,6 +48,7 @@ newtype Slug = Slug String
 derive newtype instance Eq Slug
 derive newtype instance Ord Slug
 derive newtype instance Semigroup Slug
+derive newtype instance Monoid Slug
 
 instance Show Slug where
   show (Slug str) = "(Slug " <> show str <> ")"
