@@ -5,6 +5,7 @@ module Slug
   , generate
   , generateWithOptions
   , isEmpty
+  , join
   , length
   , parse
   , parseWithOptions
@@ -118,6 +119,19 @@ length (Slug s) = String.length s
 -- | ```
 isEmpty :: Slug -> Boolean
 isEmpty (Slug s) = String.null s
+
+-- | Join two slugs with the default separator (dash). Empty slugs are
+-- | handled gracefully: if either slug is empty, the other is returned.
+-- |
+-- | ```purescript
+-- | > Slug.join <$> Slug.generate "hello" <*> Slug.generate "world"
+-- | > Just (Slug "hello-world")
+-- | ```
+join :: Slug -> Slug -> Slug
+join (Slug a) (Slug b)
+  | String.null a = Slug b
+  | String.null b = Slug a
+  | otherwise = Slug (a <> "-" <> b)
 
 -- | Ensure a `Slug` is no longer than a given number of characters. If the last
 -- | character is a dash, it will also be removed. Providing a non-positive
