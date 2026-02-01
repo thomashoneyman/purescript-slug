@@ -4,6 +4,7 @@ module Slug
   , defaultOptions
   , generate
   , generateWithOptions
+  , isEmpty
   , length
   , parse
   , parseWithOptions
@@ -100,7 +101,7 @@ parse = parseWithOptions defaultOptions
 toString :: Slug -> String
 toString (Slug s) = s
 
--- | Returns the length of the `Slug` in characters.
+-- | Returns the length of the `Slug` in Unicode code points.
 -- |
 -- | ```purescript
 -- | > Slug.generate "My article title" <#> Slug.length
@@ -108,6 +109,15 @@ toString (Slug s) = s
 -- | ```
 length :: Slug -> Int
 length (Slug s) = String.length s
+
+-- | Check if a `Slug` is empty.
+-- |
+-- | ```purescript
+-- | > Slug.isEmpty mempty
+-- | > true
+-- | ```
+isEmpty :: Slug -> Boolean
+isEmpty (Slug s) = String.null s
 
 -- | Ensure a `Slug` is no longer than a given number of characters. If the last
 -- | character is a dash, it will also be removed. Providing a non-positive
