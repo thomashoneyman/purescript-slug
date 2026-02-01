@@ -4,6 +4,7 @@ module Slug
   , defaultOptions
   , generate
   , generateWithOptions
+  , length
   , parse
   , parseWithOptions
   , toString
@@ -98,6 +99,15 @@ parse = parseWithOptions defaultOptions
 -- | ```
 toString :: Slug -> String
 toString (Slug s) = s
+
+-- | Returns the length of the `Slug` in characters.
+-- |
+-- | ```purescript
+-- | > Slug.generate "My article title" <#> Slug.length
+-- | > Just 16
+-- | ```
+length :: Slug -> Int
+length (Slug s) = String.length s
 
 -- | Ensure a `Slug` is no longer than a given number of characters. If the last
 -- | character is a dash, it will also be removed. Providing a non-positive

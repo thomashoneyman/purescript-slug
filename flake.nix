@@ -24,7 +24,7 @@
             purs
             purescript-language-server
             purs-tidy
-            spago-unstable
+            spago
           ];
         };
 

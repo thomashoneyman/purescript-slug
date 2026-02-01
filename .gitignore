@@ -3,6 +3,7 @@
 .psci_modules
 bower_components
 node_modules
+.spec-results
 
 # Generated files
 .spago
