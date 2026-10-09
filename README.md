@@ -2,7 +2,6 @@
 
 [![CI](https://github.com/thomashoneyman/purescript-slug/workflows/CI/badge.svg?branch=main)](https://github.com/thomashoneyman/purescript-slug/actions?query=workflow%3ACI+branch%3Amain)
 [![Latest release](http://img.shields.io/github/release/thomashoneyman/purescript-slug.svg)](https://github.com/thomashoneyman/purescript-slug/releases)
-[![Latest package set](https://img.shields.io/endpoint.svg?url=https://package-sets-badge-0lf69kxs4fbd.runkit.sh/slug)](https://github.com/purescript/package-sets)
 [![Maintainer: thomashoneyman](https://img.shields.io/badge/maintainer-thomashoneyman-lightgrey.svg)](http://github.com/thomashoneyman)
 
 Type-safe slugs for PureScript.
